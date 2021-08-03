@@ -1,0 +1,18 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'pg',
+        'NAME': '',  # 数据库名字
+        'USER': '',  # 用户名
+        "PASSWORD": '',  # 自己的密码
+        "HOST": '',
+        'PORT': 0,
+    }
+}
+
+TABLEPREFIX = ''
+
+SPECIALRELATION = {
+    'product': {
+        'cover_id': 'products'
+    }
+}
