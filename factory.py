@@ -114,11 +114,18 @@ def matchRelationTable(tableMap, tablename, name):
         newname = "_".join(newl)
     else:
         return ''
-    # todo 匹配配置文件中自定义的关联
+    # 匹配配置文件中自定义的关联
+    if settings.SPECIALRELATIONTABLE.get(tablename):
+        if settings.SPECIALRELATIONTABLE[tablename].get(name):
+            print('SPECIALRELATIONTABLE:' + settings.SPECIALRELATIONTABLE[tablename][name])
+            return settings.SPECIALRELATIONTABLE[tablename][name]
     for i in [newname, newname + 's']:
         i = settings.TABLEPREFIX + i
         if tableMap.get(i):
             return tableMap.get(i)
-    # todo 匹配一些强制关联的字段 例如 create_id => users
+    # 匹配一些强制关联的字段 例如 create_id => users
+    if settings.SPECIALRELATIONCLOUMN.get(name):
+        print('SPECIALRELATIONCLOUMN:' + settings.SPECIALRELATIONCLOUMN[name])
+        return settings.SPECIALRELATIONCLOUMN[name]
     print('tableName:' + tablename + ' cloumn:' + name + ' is not found relation')
     return ''

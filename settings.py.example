@@ -11,8 +11,18 @@ DATABASES = {
 
 TABLEPREFIX = ''
 
-SPECIALRELATION = {
+SPECIALRELATIONTABLE = {
     'product': {
         'cover_id': 'products'
     }
+}
+SPECIALRELATIONCLOUMN = {
+    'create_id': 'users',
+    'modify_id': 'users',
+}
+SHOWCONFIG = {
+    'padding': 5,  # 间距
+    'line_count': 5,  # 列数
+    'symbol_size': 10,  # 最小图标大小
+    'max_symbol_size': 100  # 最大图标大小
 }

@@ -1,4 +1,5 @@
 import json
+import settings
 
 origin_json_url = './dist/origin_data.json'
 echart_json_url = './dist/echart_data.json'
@@ -7,22 +8,21 @@ echart_json_url = './dist/echart_data.json'
 def covertToEchart():
     originData = readJson(origin_json_url)
     jsonData = prepareOriginData(originData)
-    # print(jsonData)
     nodes, links, categories = [], [], []
     x, y = 0, 0
     counts = 0
     for i in jsonData:
         tempJData = jsonData[i]
-        reduceCount = 5
-        modCount = mod(counts, 13)
-        if modCount == 12:
+        reduceCount = settings.SHOWCONFIG['padding']
+        modCount = mod(counts, settings.SHOWCONFIG['line_count'])
+        if modCount == min(0, settings.SHOWCONFIG['line_count'] - 1):
             y = 0
             x = x + reduceCount
         else:
             y = y - reduceCount
-        symbolSize = 5 * tempJData["count"]
-        if symbolSize > 100:
-            symbolSize = 100
+        symbolSize = settings.SHOWCONFIG['symbol_size'] * tempJData["count"]
+        if symbolSize > settings.SHOWCONFIG['max_symbol_size']:
+            symbolSize = settings.SHOWCONFIG['max_symbol_size']
         nodes.append({
             "id": tempJData["table"],
             "name": tempJData["table"],
@@ -35,7 +35,6 @@ def covertToEchart():
         })
 
         for link in tempJData['relation']:
-            # print(link)
             links.append({
                 "source": tempJData["table"],
                 "target": tempJData['relation'][link],
@@ -45,7 +44,6 @@ def covertToEchart():
             "name": tempJData["table"]
         })
         counts = counts + 1
-        # print(jsonData[i])
 
     res = {}
     res["nodes"] = nodes
@@ -63,7 +61,6 @@ def prepareOriginData(data):
             if tempMap.get(tempj) is None:
                 tempMap[tempj] = 1
             tempMap[tempj] = tempMap[tempj] + 1
-    # print(tempMap)
     for i in data:
         if tempMap.get(i) is None:
             data[i]['count'] = 1
@@ -92,10 +89,8 @@ def readJson(filename):
         try:
             while True:
                 line = f.readline()
-                # print(line)
                 if line:
                     r = json.loads(line)
-                    # print(r)
                     return r
                 else:
                     break
