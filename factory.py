@@ -1,6 +1,5 @@
-import psycopg2
-import pymysql
 import settings
+import importlib
 
 
 class SqlFactory():
@@ -14,8 +13,9 @@ class SqlFactory():
 class PgFactory:
     def __init__(self):
         self.tableMap = {}
+        pgsql = importlib.import_module('psycopg2')
         ## 连接到一个给定的数据库
-        self.connection = psycopg2.connect(database=settings.DATABASES['default']['NAME'],
+        self.connection = pgsql.connect(database=settings.DATABASES['default']['NAME'],
                                            user=settings.DATABASES['default']['USER'],
                                            password=settings.DATABASES['default']['PASSWORD'],
                                            host=settings.DATABASES['default']['HOST'],
@@ -63,8 +63,9 @@ class PgFactory:
 class MysqlFactory:
     def __init__(self):
         self.tableMap = {}
+        mysql = importlib.import_module('pymysql')
         ## 连接到一个给定的数据库
-        self.connection = pymysql.connect(database=settings.DATABASES['default']['NAME'],
+        self.connection = mysql.connect(database=settings.DATABASES['default']['NAME'],
                                           user=settings.DATABASES['default']['USER'],
                                           password=settings.DATABASES['default']['PASSWORD'],
                                           host=settings.DATABASES['default']['HOST'],
