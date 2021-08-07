@@ -26,7 +26,7 @@ def covertToEchart():
         nodes.append({
             "id": tempJData["table"],
             "name": tempJData["table"],
-            "symbol": "pin",
+            "symbol": "circle",
             "symbolSize": symbolSize,
             "x": x,
             "y": y,
@@ -49,6 +49,7 @@ def covertToEchart():
     res["nodes"] = nodes
     res["links"] = links
     res["categories"] = categories
+    res["show_all"] = settings.SHOWCONFIG['show_all']
     writeJson(res, echart_json_url, True)
 
 

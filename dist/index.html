@@ -38,7 +38,6 @@
 
     var option;
 
-
     myChart.showLoading();
     $.getJSON(ROOT_PATH + '/echart_data.json', function (graph) {
         myChart.hideLoading();
@@ -48,26 +47,37 @@
                 show: node.symbolSize > 0
             };
         });
+        selected = {}
+        if (graph.show_all == 0) {
+            graph.categories.forEach(function (cate) {
+                selected[cate.name] = false
+            });
+        }
         option = {
             title: {
-                text: '数据表名',
-                subtext: 'Default layout',
+                text: '数据表关系图',
+                subtext: '',
                 top: 'bottom',
                 left: 'right'
             },
             tooltip: {},
             legend: [{
-                // selectedMode: 'single',
+                type: 'scroll',
+                orient: 'vertical',
+                left: 10,
+                top: 20,
+                bottom: 20,
+                //selectedMode: 'multiple',
                 data: graph.categories.map(function (a) {
-                    return "";
                     return a.name;
-                })
+                }),
+                selected: selected
             }],
             animationDuration: 1500,
             animationEasingUpdate: 'quinticInOut',
             series: [
                 {
-                    name: 'sql关系图',
+                    name: '表结构',
                     type: 'graph',
                     layout: 'none',
                     circular: {
@@ -78,8 +88,13 @@
                     categories: graph.categories,
                     roam: true,
                     label: {
-                        position: 'bottom',
-                        formatter: '{b}'
+                        position: 'inside',
+                        formatter: '{b}',
+                        fontStyle: "oblique",
+                        fontWeight: "bold"
+                    },
+                    labelLayout: {
+                        hideOverlap: true
                     },
                     lineStyle: {
                         color: 'source',
@@ -91,7 +106,15 @@
                             width: 10
                         }
                     },
-                    zoom: 1
+                    zoom: 1,
+                    //HoverLink: true,
+                    edgeSymbol: ['none', 'arrow'],
+                    edgeLabel: {
+                        show: true
+                    },
+                    left: "20%",
+                    top: "middle"
+                    //edgeSymbolSize: [9,9]
                 }
             ]
         };
