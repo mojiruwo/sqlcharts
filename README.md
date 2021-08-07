@@ -14,3 +14,5 @@
 #### 选中图标
 ![](images/img3.png)
 
+- 有兴趣的朋友可以关注下我的公众号，公众号里有我对这个项目的初衷和心路历程
+- https://mp.weixin.qq.com/s/deMhtLThftAfpz4o8A8tTA
