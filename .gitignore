@@ -3,3 +3,4 @@ __pycache__/
 settings.py
 /dist/echart_data.json
 /dist/origin_data.json
+*.pyc

@@ -27,7 +27,7 @@ class PgFactory:
         tableMap = self.getTableMap()
         tableData = {}
         for i in tableMap:
-            tableData[i] = self.getTableCloumns(i)
+            tableData[i] = self.getTableColumns(i)
         return tableData
 
     def getTableMap(self):
@@ -44,13 +44,13 @@ class PgFactory:
         self.tableMap = res
         return res
 
-    def getTableCloumns(self, tablename):
+    def getTableColumns(self, tablename):
         cursor = self.connection.cursor()
         cursor.execute(
             "SELECT col_description(a.attrelid,a.attnum) as comment,format_type(a.atttypid,a.atttypmod) as type,a.attname as name, a.attnotnull as notnull FROM pg_class as c,pg_attribute as a where c.relname = '" + tablename + "' and a.attrelid = c.oid and a.attnum>0")
-        cloumns = cursor.fetchall()
+        columns = cursor.fetchall()
         res, relation = {}, {}
-        for clo in cloumns:
+        for clo in columns:
             title = clo[2]
             des = clo[0]
             rel = matchRelationTable(self.tableMap, tablename, title)
@@ -77,7 +77,7 @@ class MysqlFactory:
         tableMap = self.getTableMap()
         tableData = {}
         for i in tableMap:
-            tableData[i] = self.getTableCloumns(i)
+            tableData[i] = self.getTableColumns(i)
         return tableData
 
     def getTableMap(self):
@@ -90,12 +90,12 @@ class MysqlFactory:
         self.tableMap = res
         return res
 
-    def getTableCloumns(self, tablename):
+    def getTableColumns(self, tablename):
         cursor = self.connection.cursor()
         cursor.execute("show full columns from " + tablename)
-        cloumns = cursor.fetchall()
+        columns = cursor.fetchall()
         res, relation = {}, {}
-        for clo in cloumns:
+        for clo in columns:
             title = clo[0]
             des = clo[8]
             rel = matchRelationTable(self.tableMap, tablename, title)
@@ -118,17 +118,17 @@ def matchRelationTable(tableMap, tablename, name):
     else:
         return ''
     # 匹配配置文件中自定义的关联
-    if settings.SPECIALRELATIONTABLE.get(tablename):
-        if settings.SPECIALRELATIONTABLE[tablename].get(name):
-            print('SPECIALRELATIONTABLE:' + settings.SPECIALRELATIONTABLE[tablename][name])
-            return settings.SPECIALRELATIONTABLE[tablename][name]
+    if settings.MapRelationTable.get(tablename):
+        if settings.MapRelationTable[tablename].get(name):
+            print('MapRelationTable:' + settings.MapRelationTable[tablename][name])
+            return settings.MapRelationTable[tablename][name]
     for i in [newname, newname + 's']:
-        i = settings.TABLEPREFIX + i
+        i = settings.TablePrefix + i
         if tableMap.get(i):
             return tableMap.get(i)
     # 匹配一些强制关联的字段 例如 create_id => users
-    if settings.SPECIALRELATIONCLOUMN.get(name):
-        print('SPECIALRELATIONCLOUMN:' + settings.SPECIALRELATIONCLOUMN[name])
-        return settings.SPECIALRELATIONCLOUMN[name]
-    print('tableName:' + tablename + ' cloumn:' + name + ' is not found relation')
+    if settings.MapRelationColumn.get(name):
+        print('MapRelationColumn:' + settings.MapRelationColumn[name])
+        return settings.MapRelationColumn[name]
+    print('tableName:' + tablename + ' column:' + name + ' is not found relation')
     return ''
