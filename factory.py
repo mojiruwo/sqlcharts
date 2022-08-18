@@ -17,11 +17,11 @@ class PgFactory:
         self.tableMap = {}
         pgsql = importlib.import_module('psycopg2')
         ## 连接到一个给定的数据库
-        self.connection = pgsql.connect(database=settings.DATABASES['default']['NAME'],
-                                           user=settings.DATABASES['default']['USER'],
-                                           password=settings.DATABASES['default']['PASSWORD'],
-                                           host=settings.DATABASES['default']['HOST'],
-                                           port=settings.DATABASES['default']['PORT'])
+        self.connection = pgsql.connect(database=settings.databases['default']['name'],
+                                           user=settings.databases['default']['user'],
+                                           password=settings.databases['default']['pwd'],
+                                           host=settings.databases['default']['host'],
+                                           port=settings.databases['default']['port'])
 
     def getTableOriginData(self):
         tableMap = self.getTableMap()
@@ -67,11 +67,11 @@ class MysqlFactory:
         self.tableMap = {}
         mysql = importlib.import_module('pymysql')
         ## 连接到一个给定的数据库
-        self.connection = mysql.connect(database=settings.DATABASES['default']['NAME'],
-                                          user=settings.DATABASES['default']['USER'],
-                                          password=settings.DATABASES['default']['PASSWORD'],
-                                          host=settings.DATABASES['default']['HOST'],
-                                          port=settings.DATABASES['default']['PORT'])
+        self.connection = mysql.connect(database=settings.databases['default']['name'],
+                                          user=settings.databases['default']['user'],
+                                          password=settings.databases['default']['pwd'],
+                                          host=settings.databases['default']['host'],
+                                          port=settings.databases['default']['port'])
 
     def getTableOriginData(self):
         tableMap = self.getTableMap()
@@ -118,17 +118,17 @@ def matchRelationTable(tableMap, tablename, name):
     else:
         return ''
     # 匹配配置文件中自定义的关联
-    if settings.MapRelationTable.get(tablename):
-        if settings.MapRelationTable[tablename].get(name):
-            print('MapRelationTable:' + settings.MapRelationTable[tablename][name])
-            return settings.MapRelationTable[tablename][name]
+    if settings.mapRelationTable.get(tablename):
+        if settings.mapRelationTable[tablename].get(name):
+            print('mapRelationTable:' + settings.mapRelationTable[tablename][name])
+            return settings.mapRelationTable[tablename][name]
     for i in [newname, newname + 's']:
-        i = settings.TablePrefix + i
+        i = settings.tablePrefix + i
         if tableMap.get(i):
             return tableMap.get(i)
     # 匹配一些强制关联的字段 例如 create_id => users
-    if settings.MapRelationColumn.get(name):
-        print('MapRelationColumn:' + settings.MapRelationColumn[name])
-        return settings.MapRelationColumn[name]
+    if settings.mapRelationColumn.get(name):
+        print('mapRelationColumn:' + settings.mapRelationColumn[name])
+        return settings.mapRelationColumn[name]
     print('tableName:' + tablename + ' column:' + name + ' is not found relation')
     return ''

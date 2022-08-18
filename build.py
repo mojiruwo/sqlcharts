@@ -15,7 +15,7 @@ def main():
 
 def buildData():
     fa = SqlFactory()
-    tableClass = fa.getFactory(settings.DATABASES['default']['ENGINE'])
+    tableClass = fa.getFactory(settings.databases['default']['engine'])
     tableData = tableClass.getTableOriginData()
     # 对应关系写入文件
     utils.writeJson(tableData, utils.origin_json_url)

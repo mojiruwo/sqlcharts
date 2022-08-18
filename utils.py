@@ -15,16 +15,16 @@ def covertToEchart():
     counts = 0
     for i in jsonData:
         tempJData = jsonData[i]
-        reduceCount = settings.ShowEchart['padding']
-        modCount = mod(counts, settings.ShowEchart['line_count'])
-        if modCount == min(0, settings.ShowEchart['line_count'] - 1):
+        reduceCount = settings.showEchart['padding']
+        modCount = mod(counts, settings.showEchart['line_count'])
+        if modCount == min(0, settings.showEchart['line_count'] - 1):
             y = 0
             x = x + reduceCount
         else:
             y = y - reduceCount
-        symbolSize = settings.ShowEchart['symbol_size'] * tempJData["count"]
-        if symbolSize > settings.ShowEchart['max_symbol_size']:
-            symbolSize = settings.ShowEchart['max_symbol_size']
+        symbolSize = settings.showEchart['symbol_size'] * tempJData["count"]
+        if symbolSize > settings.showEchart['max_symbol_size']:
+            symbolSize = settings.showEchart['max_symbol_size']
         nodes.append({
             "id": tempJData["table"],
             "name": tempJData["table"],
@@ -51,7 +51,7 @@ def covertToEchart():
     res["nodes"] = nodes
     res["links"] = links
     res["categories"] = categories
-    res["show_all"] = settings.ShowEchart['show_all']
+    res["show_all"] = settings.showEchart['show_all']
     writeJson(res, echart_json_url, True)
 
 
