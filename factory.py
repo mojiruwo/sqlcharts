@@ -17,11 +17,12 @@ class PgFactory:
         self.tableMap = {}
         pgsql = importlib.import_module('psycopg2')
         ## 连接到一个给定的数据库
-        self.connection = pgsql.connect(database=settings.databases['default']['name'],
-                                           user=settings.databases['default']['user'],
-                                           password=settings.databases['default']['pwd'],
-                                           host=settings.databases['default']['host'],
-                                           port=settings.databases['default']['port'])
+        db = settings.databases[settings.defaultDb]
+        self.connection = pgsql.connect(database=db['name'],
+                                           user=db['user'],
+                                           password=db['pwd'],
+                                           host=db['host'],
+                                           port=db['port'])
 
     def getTableOriginData(self):
         tableMap = self.getTableMap()
@@ -49,7 +50,7 @@ class PgFactory:
         cursor.execute(
             "SELECT col_description(a.attrelid,a.attnum) as comment,format_type(a.atttypid,a.atttypmod) as type,a.attname as name, a.attnotnull as notnull FROM pg_class as c,pg_attribute as a where c.relname = '" + tablename + "' and a.attrelid = c.oid and a.attnum>0")
         columns = cursor.fetchall()
-        res, relation = {}, {}
+        res, relation = {}, []
         for col in columns:
             title = col[2]
             desc = col[0]
@@ -68,11 +69,12 @@ class MysqlFactory:
         self.tableMap = {}
         mysql = importlib.import_module('pymysql')
         ## 连接到一个给定的数据库
-        self.connection = mysql.connect(database=settings.databases['default']['name'],
-                                          user=settings.databases['default']['user'],
-                                          password=settings.databases['default']['pwd'],
-                                          host=settings.databases['default']['host'],
-                                          port=settings.databases['default']['port'])
+        db = settings.databases[settings.defaultDb]
+        self.connection = mysql.connect(database=db['name'],
+                                          user=db['user'],
+                                          password=db['pwd'],
+                                          host=db['host'],
+                                          port=db['port'])
 
     def getTableOriginData(self):
         tableMap = self.getTableMap()
