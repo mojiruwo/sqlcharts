@@ -14,11 +14,11 @@ def mod(a, b):
 
 
 def writeJson(data, filename, format=False):
-    with open(filename, 'w') as file_obj:
+    with open(filename, 'w', encoding='utf-8') as file_obj:
         if format:
-            json.dump(data, file_obj, indent=4)
+            json.dump(data, file_obj,ensure_ascii=False, indent=4)
         else:
-            json.dump(data, file_obj)
+            json.dump(data, file_obj, ensure_ascii=False)
 
 
 def readJson(filename):

@@ -129,26 +129,27 @@ const graph = new X6.Graph({
 fetch('./json/sql_er.json')
   .then((response) => response.json())
   .then((data) => {
+    conf = data.config
     const cells = new Array()
-    var nodeCount = 0, maxHeight = 0, lineHeight = 0, mod = 5, wid = 300, bottom = 100
-    data.forEach(function(item, index){
+    var nodeCount = 0, maxHeight = 0, lineHeight = 0
+    data.nodes.forEach(function(item, index){
       if (item.shape === 'edge') {
         cells.push(graph.createEdge(item))
       } else {
         nd = graph.createNode(item)
         // 动态设置图标位置
-        if (nodeCount % mod == 0) {
-          maxHeight = Math.max(maxHeight+lineHeight+bottom,maxHeight)
+        if (nodeCount % conf.lineCount == 0) {
+          maxHeight = Math.max(maxHeight+lineHeight+conf.bottom,maxHeight)
           lineHeight = 0
         }
         size = nd.size()
         lineHeight = Math.max(lineHeight,size.height*item.ports.length)
-        nd.position(wid*(nodeCount % mod), maxHeight, { relative: true })
+        nd.position(conf.width*(nodeCount % conf.lineCount), maxHeight, { relative: true })
         nodeCount += 1
         cells.push(nd)
       }
     })
-    graph.resize(wid*mod, maxHeight)
+    graph.resize(conf.width*conf.lineCount, maxHeight)
     graph.resetCells(cells)
     graph.zoomToFit({ padding: 10, maxScale: 1 })
   })

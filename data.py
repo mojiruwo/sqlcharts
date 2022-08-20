@@ -15,14 +15,13 @@ class DataErFactory:
     def covertToChart(self):
         initSqlData()
         nodes = []
-        x, y = 0, 0
         for i in jsonData:
-            tempJData = jsonData[i]
+            tableInfo = jsonData[i]
             # 表字段数据
             erRect = {
-                "id": tempJData["table"],
+                "id": tableInfo["table"],
                 "shape": "er-rect",
-                "label": tempJData["table"],
+                "label": tableInfo["table"],
                 "width": 250,
                 "height": 24,
                 "position": {
@@ -31,9 +30,9 @@ class DataErFactory:
                 }
             }
             ports = []
-            for filed in tempJData["columns"]:
+            for filed in tableInfo["columns"]:
                 ports.append({
-                    "id": tempJData["table"] + "." + filed["title"],
+                    "id": tableInfo["table"] + "." + filed["title"],
                     "group": "list",
                     "attrs": {
                         "portNameLabel": {
@@ -47,18 +46,18 @@ class DataErFactory:
             erRect["ports"] = ports
             nodes.append(erRect)
             # 关联关系
-            for filed in tempJData["columns"]:
-                source = matchRelationTable(tempJData["table"], filed["title"])
+            for filed in tableInfo["columns"]:
+                source = matchRelationTable(tableInfo["table"], filed["title"])
                 if source != "":
                     splitSource = source.split('.')
                     if len(splitSource) != 2:
                         continue
                     nodes.append({
-                        "id": tempJData["table"] + "." + filed["title"] + source,
+                        "id": tableInfo["table"] + "." + filed["title"] + source,
                         "shape": "edge",
                         "source": {
-                            "cell": tempJData["table"],
-                            "port": tempJData["table"] + "." + filed["title"]
+                            "cell": tableInfo["table"],
+                            "port": tableInfo["table"] + "." + filed["title"]
                         },
                         "target": {
                             "cell": splitSource[0],
@@ -72,37 +71,75 @@ class DataErFactory:
                         },
                         "zIndex": 0
                     })
-        utils.writeJson(nodes, utils.sql_er_url, True)
+        res = {}
+        res["nodes"] = nodes
+        res["config"] = settings.chartConfig
+        utils.writeJson(res, utils.sql_er_url, True)
         
 def initSqlData():
     global jsonData
     jsonData = utils.readJson(utils.sql_json_url)
     
-def matchRelationTable(tablename, name):
-    if name == 'id':
+def matchRelationTable(tableName, fieldName):
+    if fieldName == 'id':
         return ''
-    l = name.split('_')
-    newname = ''
+    # todo 使用middleware模式进行匹配 
 
-    if l[-1] == 'id':
-        newl = l[:-1]
-        newname = "_".join(newl)
-    else:
-        return ''
     # 匹配配置文件中自定义的关联
-    if settings.mapRelationTable.get(tablename):
-        if settings.mapRelationTable[tablename].get(name):
-            print('mapRelationTable:' + settings.mapRelationTable[tablename][name])
-            return settings.mapRelationTable[tablename][name]
-    for i in [newname, newname + 's']:
-        i = settings.tablePrefix + i
-        if jsonData.get(i):
-            return jsonData.get(i)['table'] + '.id'
+    tableRes = relationTable(tableName, fieldName)
+    if tableRes != "":
+        return tableRes
+    
     # 匹配一些强制关联的字段 例如 create_id => users.id
-    if settings.mapRelationColumn.get(name):
-        print('mapRelationColumn:' + settings.mapRelationColumn[name])
-        return settings.mapRelationColumn[name]
-    print('tableName:' + tablename + ' column:' + name + ' is not found relation')
+    columnRes = relationColumn(tableName, fieldName)
+    if columnRes != "":
+        return columnRes
+
+    # 匹配默认公共规则（_id）
+    commonRes = relationCommon(tableName, fieldName)
+    if commonRes != "":
+        return commonRes
+
+    l = fieldName.split('_')
+    if l[-1] == 'id':
+        print('tableName:' + tableName + ' column:' + fieldName + ' is not found relation')
+    
     return ''
 
+def relationTable(tableName, fieldName):
+    tmp = {}
+    for i in settings.mapRelationTable:
+        tmp[settings.tablePrefix+i] = settings.mapRelationTable[i]
+    
+    if tmp.get(tableName) == None:
+        return ''
+    
+    if tmp[tableName].get(fieldName):
+        print('mapRelationTable:' + tableName + ' column:' + fieldName + ' field:' + tmp[tableName][fieldName])
+        return settings.tablePrefix+tmp[tableName][fieldName]
+    
+    return ''
 
+def relationColumn(tableName, fieldName):
+    if settings.mapRelationColumn.get(fieldName):
+        print('mapRelationColumn:' + tableName + ' column:' + fieldName + ' field:' +  settings.mapRelationColumn[fieldName])
+        return settings.tablePrefix+settings.mapRelationColumn[fieldName]
+    
+    return ''
+
+def relationCommon(tableName, fieldName):
+    tName = ''
+    l = fieldName.split('_')
+    if l[-1] == 'id':
+        x = l[:-1]
+        tName = "_".join(x)
+    else:
+        return ''
+    for i in tableNameArr(tName):
+        if jsonData.get(i):
+            return i + '.id'
+    return ''
+
+def tableNameArr(table):
+    t = settings.tablePrefix+table
+    return [t, t + 's']

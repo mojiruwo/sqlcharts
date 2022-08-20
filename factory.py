@@ -52,13 +52,14 @@ class PgFactory:
         res, relation = {}, {}
         for col in columns:
             title = col[2]
-            des = col[0]
-            rel = matchRelationTable(self.tableMap, tablename, title)
-            if rel != "":
-                relation[title] = rel
-        res['relation'] = relation
+            desc = col[0]
+            relation.append({
+                "title": title,
+                "tp": "",
+                "desc": desc,
+            })
+        res['columns'] = relation
         res['table'] = tablename
-        # print(res)
         return res
 
 
@@ -107,31 +108,3 @@ class MysqlFactory:
         res['columns'] = relation
         res['table'] = tablename
         return res
-
-
-def matchRelationTable(tableMap, tablename, name):
-    if name == 'id':
-        return ''
-    l = name.split('_')
-    newname = ''
-
-    if l[-1] == 'id':
-        newl = l[:-1]
-        newname = "_".join(newl)
-    else:
-        return ''
-    # 匹配配置文件中自定义的关联
-    if settings.mapRelationTable.get(tablename):
-        if settings.mapRelationTable[tablename].get(name):
-            print('mapRelationTable:' + settings.mapRelationTable[tablename][name])
-            return settings.mapRelationTable[tablename][name]
-    for i in [newname, newname + 's']:
-        i = settings.tablePrefix + i
-        if tableMap.get(i):
-            return tableMap.get(i)
-    # 匹配一些强制关联的字段 例如 create_id => users
-    if settings.mapRelationColumn.get(name):
-        print('mapRelationColumn:' + settings.mapRelationColumn[name])
-        return settings.mapRelationColumn[name]
-    print('tableName:' + tablename + ' column:' + name + ' is not found relation')
-    return ''

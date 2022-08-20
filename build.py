@@ -15,11 +15,11 @@ def main():
 
 
 def buildData():
-    fa = SqlFactory()
-    tableClass = fa.getFactory(settings.databases['default']['engine'])
-    tableData = tableClass.getTableOriginData()
+    sf = SqlFactory()
+    dbClass = sf.getFactory(settings.databases[settings.defaultDb]['engine'])
+    dbData = dbClass.getTableOriginData()
     # 表结构写入文件
-    utils.writeJson(tableData, utils.sql_json_url)
+    utils.writeJson(dbData, utils.sql_json_url)
 
 
 def covertData():

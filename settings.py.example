@@ -9,30 +9,31 @@ databases = {
     }
 }
 
+defaultDb = 'default'
+
 tablePrefix = ''
 
 # 特殊表字段映射
-# 这里意思是 products.cover_id 关联关系映射 resources表
-# 'products': { 数据库表名
-#         'cover_id': 'resources' 字段名 => 关联数据表名
+# 这里意思是 area.pid 关联关系映射 category表的id
+# 'area': { 数据库表名
+#         'pid': 'category.id' 字段名 => 关联数据表的字段名 注意不要加前缀
 #     }
 mapRelationTable = {
-    'product': {
-        'cover_id': 'products'
+    'area': {
+        'pid': 'category.id'
     }
 }
 # 特殊字段映射
-# 把某个字段名恒定关联到某个表
-# create_id 字段 => users 表
+# 把某个字段名恒定关联到某个表的字段
+# create_id 字段 => users.id 注意不要加前缀
 mapRelationColumn = {
-    'create_id': 'users',
-    'modify_id': 'users',
+    'create_id': 'user.id',
+    'modify_id': 'users.id',
+    'setting': 'category.status',
 }
 
-showEchart = {
-    'padding': 300,  # 间距
-    'line_count': 5,  # 列数
-    'symbol_size': 20,  # 最小图标大小
-    'max_symbol_size': 100,  # 最大图标大小
-    'show_all': 1  # 是否默认显示全部 0 否 1 是
+chartConfig = {
+    'width': 300,  # 表格宽度
+    'lineCount': 5,  # 列数
+    'bottom': 100,  # 每行表格下间距
 }
