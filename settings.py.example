@@ -37,3 +37,11 @@ chartConfig = {
     'lineCount': 5,  # 列数
     'bottom': 100,  # 每行表格下间距
 }
+
+enableFilter = False # 是否开启过滤 默认是False
+
+# 允许显示的表
+allowTable = [
+    "products",
+    "skus",
+]

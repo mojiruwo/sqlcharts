@@ -17,6 +17,9 @@ class DataErFactory:
         nodes = []
         for i in jsonData:
             tableInfo = jsonData[i]
+            # 是否被过滤
+            if filterTable(tableInfo["table"]) == False:
+                continue
             # 表字段数据
             erRect = {
                 "id": tableInfo["table"],
@@ -143,3 +146,10 @@ def relationCommon(tableName, fieldName):
 def tableNameArr(table):
     t = settings.tablePrefix+table
     return [t, t + 's']
+
+def filterTable(table):
+    if settings.enableFilter:
+        if table not in settings.allowTable:
+            return False
+    
+    return True
