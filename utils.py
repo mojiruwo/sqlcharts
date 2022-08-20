@@ -1,76 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import json
-import settings
+import os
 
-origin_json_url = './dist/origin_data.json'
-echart_json_url = './dist/echart_data.json'
-
-
-def covertToEchart():
-    originData = readJson(origin_json_url)
-    jsonData = prepareOriginData(originData)
-    nodes, links, categories = [], [], []
-    x, y = 0, 0
-    counts = 0
-    for i in jsonData:
-        tempJData = jsonData[i]
-        reduceCount = settings.showEchart['padding']
-        modCount = mod(counts, settings.showEchart['line_count'])
-        if modCount == min(0, settings.showEchart['line_count'] - 1):
-            y = 0
-            x = x + reduceCount
-        else:
-            y = y - reduceCount
-        symbolSize = settings.showEchart['symbol_size'] * tempJData["count"]
-        if symbolSize > settings.showEchart['max_symbol_size']:
-            symbolSize = settings.showEchart['max_symbol_size']
-        nodes.append({
-            "id": tempJData["table"],
-            "name": tempJData["table"],
-            "symbol": "circle",
-            "symbolSize": symbolSize,
-            "x": x,
-            "y": y,
-            "value": tempJData["table"],
-            "category": tempJData["table"],
-        })
-
-        for link in tempJData['relation']:
-            links.append({
-                "source": tempJData["table"],
-                "target": tempJData['relation'][link],
-            })
-
-        categories.append({
-            "name": tempJData["table"]
-        })
-        counts = counts + 1
-
-    res = {}
-    res["nodes"] = nodes
-    res["links"] = links
-    res["categories"] = categories
-    res["show_all"] = settings.showEchart['show_all']
-    writeJson(res, echart_json_url, True)
-
-
-def prepareOriginData(data):
-    tempMap = {}
-    for i in data:
-        tempJData = data[i]
-        for j in tempJData['relation']:
-            tempj = tempJData['relation'][j]
-            if tempMap.get(tempj) is None:
-                tempMap[tempj] = 1
-            tempMap[tempj] = tempMap[tempj] + 1
-    for i in data:
-        if tempMap.get(i) is None:
-            data[i]['count'] = 1
-            continue
-        data[i]['count'] = tempMap[data[i]['table']]
-
-    return data
+sql_json_url = './dist/json/sql_data.json'
+sql_er_url = './dist/json/sql_er.json'
 
 
 def mod(a, b):
@@ -88,6 +22,8 @@ def writeJson(data, filename, format=False):
 
 
 def readJson(filename):
+    if os.path.exists(filename) == False:
+        return
     with open(filename, 'r', encoding='utf-8') as f:
         try:
             while True:

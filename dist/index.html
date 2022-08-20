@@ -1,132 +1,157 @@
-<!--
-    THIS EXAMPLE WAS DOWNLOADED FROM https://echarts.apache.org/examples/zh/editor.html?c=graph
--->
 <!DOCTYPE html>
-<html style="height: 100%">
+<html >
 <head>
     <meta charset="utf-8">
 </head>
-<body style="height: 100%; margin: 0">
-<div id="container" style="height: 100%"></div>
-<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<!-- Uncomment this line if you want to dataTool extension
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/extension/dataTool.min.js"></script>
--->
-<!-- Uncomment this line if you want to use gl extension
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
--->
-<!-- Uncomment this line if you want to echarts-stat extension
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat@latest/dist/ecStat.min.js"></script>
--->
-<!-- Uncomment this line if you want to use map
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/map/js/china.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/map/js/world.js"></script>
--->
-<!-- Uncomment these two lines if you want to use bmap extension
-<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=<Your Key Here>"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/extension/bmap.min.js"></script>
--->
-
-<script type="text/javascript">
-    var dom = document.getElementById("container");
-    var myChart = echarts.init(dom);
-    var app = {};
-
-    var ROOT_PATH = "."
-
-    var option;
-
-    myChart.showLoading();
-    $.getJSON(ROOT_PATH + '/echart_data.json', function (graph) {
-        myChart.hideLoading();
-
-        graph.nodes.forEach(function (node) {
-            node.label = {
-                show: node.symbolSize > 0
-            };
-        });
-        selected = {}
-        if (graph.show_all == 0) {
-            graph.categories.forEach(function (cate) {
-                selected[cate.name] = false
-            });
-        }
-        option = {
-            title: {
-                text: '数据表关系图',
-                subtext: '',
-                top: 'bottom',
-                left: 'right'
-            },
-            tooltip: {},
-            legend: [{
-                type: 'scroll',
-                orient: 'vertical',
-                left: 10,
-                top: 20,
-                bottom: 20,
-                //selectedMode: 'multiple',
-                data: graph.categories.map(function (a) {
-                    return a.name;
-                }),
-                selected: selected
-            }],
-            animationDuration: 1500,
-            animationEasingUpdate: 'quinticInOut',
-            series: [
-                {
-                    name: '表结构',
-                    type: 'graph',
-                    layout: 'none',
-                    circular: {
-                        rotateLabel: true
-                    },
-                    data: graph.nodes,
-                    links: graph.links,
-                    categories: graph.categories,
-                    roam: true,
-                    label: {
-                        position: 'inside',
-                        formatter: '{b}',
-                        fontStyle: "oblique",
-                        fontWeight: "bold"
-                    },
-                    labelLayout: {
-                        hideOverlap: true
-                    },
-                    lineStyle: {
-                        color: 'source',
-                        curveness: 0.3
-                    },
-                    emphasis: {
-                        focus: 'adjacency',
-                        lineStyle: {
-                            width: 10
-                        }
-                    },
-                    zoom: 1,
-                    //HoverLink: true,
-                    edgeSymbol: ['none', 'arrow'],
-                    edgeLabel: {
-                        show: true
-                    },
-                    left: "20%",
-                    top: "middle"
-                    //edgeSymbolSize: [9,9]
-                }
-            ]
-        };
-
-        myChart.setOption(option);
-    });
-
-    if (option && typeof option === 'object') {
-        myChart.setOption(option);
-    }
-
-</script>
+<body >
+  <div id="container"></div>
 </body>
+<script src="https://unpkg.com/@antv/x6@1.31.0/dist/x6.js"></script>
+<script>
+    const LINE_HEIGHT = 24
+const NODE_WIDTH = 250
+
+
+X6.Graph.registerPortLayout(
+  'erPortPosition',
+  (portsPositionArgs) => {
+    return portsPositionArgs.map((_, index) => {
+      return {
+        position: {
+          x: 0,
+          y: (index + 1) * LINE_HEIGHT,
+        },
+        angle: 0,
+      }
+    })
+  },
+  true,
+)
+
+X6.Graph.registerNode(
+  'er-rect',
+  {
+    inherit: 'rect',
+    markup: [
+      {
+        tagName: 'rect',
+        selector: 'body',
+      },
+      {
+        tagName: 'text',
+        selector: 'label',
+      },
+    ],
+    attrs: {
+      rect: {
+        strokeWidth: 1,
+        stroke: '#5F95FF',
+        fill: '#5F95FF',
+      },
+      label: {
+        fontWeight: 'bold',
+        fill: '#ffffff',
+        fontSize: 12,
+      },
+    },
+    ports: {
+      groups: {
+        list: {
+          markup: [
+            {
+              tagName: 'rect',
+              selector: 'portBody',
+            },
+            {
+              tagName: 'text',
+              selector: 'portNameLabel',
+            },
+            {
+              tagName: 'text',
+              selector: 'portTypeLabel',
+            }
+          ],
+          attrs: {
+            portBody: {
+              width: NODE_WIDTH,
+              height: LINE_HEIGHT,
+              strokeWidth: 1,
+              stroke: '#5F95FF',
+              fill: '#EFF4FF',
+              magnet: true,
+            },
+            portNameLabel: {
+              ref: 'portBody',
+              refX: 6,
+              refY: 6,
+              fontSize: 10,
+            },
+            portTypeLabel: {
+              ref: 'portBody',
+              refX: 95,
+              refY: 6,
+              fontSize: 10,
+            }
+          },
+          position: 'erPortPosition',
+        },
+      },
+    },
+  },
+  true,
+)
+
+const graph = new X6.Graph({
+  container: document.getElementById('container'),
+  height: 600,
+  grid: true,
+  connecting: {
+    router: {
+      name: 'er',
+      args: {
+        offset: 25,
+        direction: 'H',
+      },
+    },
+    createEdge() {
+      return new X6.Shape.Edge({
+        attrs: {
+          line: {
+            stroke: '#A2B1C3',
+            strokeWidth: 2,
+          },
+        },
+      })
+    },
+  },
+})
+
+fetch('./json/sql_er.json')
+  .then((response) => response.json())
+  .then((data) => {
+    const cells = new Array()
+    var nodeCount = 0, maxHeight = 0, lineHeight = 0, mod = 5, wid = 300, bottom = 100
+    data.forEach(function(item, index){
+      if (item.shape === 'edge') {
+        cells.push(graph.createEdge(item))
+      } else {
+        nd = graph.createNode(item)
+        // 动态设置图标位置
+        if (nodeCount % mod == 0) {
+          maxHeight = Math.max(maxHeight+lineHeight+bottom,maxHeight)
+          lineHeight = 0
+        }
+        size = nd.size()
+        lineHeight = Math.max(lineHeight,size.height*item.ports.length)
+        nd.position(wid*(nodeCount % mod), maxHeight, { relative: true })
+        nodeCount += 1
+        cells.push(nd)
+      }
+    })
+    graph.resize(wid*mod, maxHeight)
+    graph.resetCells(cells)
+    graph.zoomToFit({ padding: 10, maxScale: 1 })
+  })
+  </script>
 </html>
 

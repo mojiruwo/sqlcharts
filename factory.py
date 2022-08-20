@@ -50,9 +50,9 @@ class PgFactory:
             "SELECT col_description(a.attrelid,a.attnum) as comment,format_type(a.atttypid,a.atttypmod) as type,a.attname as name, a.attnotnull as notnull FROM pg_class as c,pg_attribute as a where c.relname = '" + tablename + "' and a.attrelid = c.oid and a.attnum>0")
         columns = cursor.fetchall()
         res, relation = {}, {}
-        for clo in columns:
-            title = clo[2]
-            des = clo[0]
+        for col in columns:
+            title = col[2]
+            des = col[0]
             rel = matchRelationTable(self.tableMap, tablename, title)
             if rel != "":
                 relation[title] = rel
@@ -94,14 +94,17 @@ class MysqlFactory:
         cursor = self.connection.cursor()
         cursor.execute("show full columns from " + tablename)
         columns = cursor.fetchall()
-        res, relation = {}, {}
-        for clo in columns:
-            title = clo[0]
-            des = clo[8]
-            rel = matchRelationTable(self.tableMap, tablename, title)
-            if rel != "":
-                relation[title] = rel
-        res['relation'] = relation
+        res, relation = {}, []
+        for col in columns:
+            title = col[0]
+            tp = col[1]
+            desc = col[8]
+            relation.append({
+                "title": title,
+                "tp": tp,
+                "desc": desc,
+            })
+        res['columns'] = relation
         res['table'] = tablename
         return res
 
