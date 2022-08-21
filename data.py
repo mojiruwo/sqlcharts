@@ -17,9 +17,6 @@ class DataErFactory:
         nodes = []
         for i in jsonData:
             tableInfo = jsonData[i]
-            # 是否被过滤
-            if filterTable(tableInfo["table"]) == False:
-                continue
             # 表字段数据
             erRect = {
                 "id": tableInfo["table"],
@@ -82,6 +79,19 @@ class DataErFactory:
 def initSqlData():
     global jsonData
     jsonData = utils.readJson(utils.sql_json_url)
+    if settings.enableFilter:
+        filterData = {}
+        for i in settings.allowTable:
+            filterData[getTableName(i)] = jsonData.get(getTableName(i))
+        jsonData = filterData
+    
+    if len(settings.ignoreTable) > 0:
+        tmp = {}
+        for i in jsonData:
+            if i not in handleIgnoreTable():
+                tmp[i] = jsonData.get(i)
+        jsonData = tmp
+    
     
 def matchRelationTable(tableName, fieldName):
     if fieldName == 'id':
@@ -105,28 +115,28 @@ def matchRelationTable(tableName, fieldName):
 
     l = fieldName.split('_')
     if l[-1] == 'id':
-        print('tableName:' + tableName + ' column:' + fieldName + ' is not found relation')
+        print('notFoundRelation: ' + tableName + '.' + fieldName)
     
     return ''
 
 def relationTable(tableName, fieldName):
     tmp = {}
     for i in settings.mapRelationTable:
-        tmp[settings.tablePrefix+i] = settings.mapRelationTable[i]
+        tmp[getTableName(i)] = settings.mapRelationTable[i]
     
     if tmp.get(tableName) == None:
         return ''
     
     if tmp[tableName].get(fieldName):
-        print('mapRelationTable:' + tableName + ' column:' + fieldName + ' field:' + tmp[tableName][fieldName])
-        return settings.tablePrefix+tmp[tableName][fieldName]
+        print('mapRelationTable: ' + tableName + '.' + fieldName + ' => ' + tmp[tableName][fieldName])
+        return getTableName(tmp[tableName][fieldName])
     
     return ''
 
 def relationColumn(tableName, fieldName):
     if settings.mapRelationColumn.get(fieldName):
-        print('mapRelationColumn:' + tableName + ' column:' + fieldName + ' field:' +  settings.mapRelationColumn[fieldName])
-        return settings.tablePrefix+settings.mapRelationColumn[fieldName]
+        print('mapRelationColumn: ' + tableName + '.' + fieldName + ' => ' +  settings.mapRelationColumn[fieldName])
+        return getTableName(settings.mapRelationColumn[fieldName])
     
     return ''
 
@@ -144,12 +154,14 @@ def relationCommon(tableName, fieldName):
     return ''
 
 def tableNameArr(table):
-    t = settings.tablePrefix+table
+    t = getTableName(table)
     return [t, t + 's']
 
-def filterTable(table):
-    if settings.enableFilter:
-        if table not in settings.allowTable:
-            return False
-    
-    return True
+def handleIgnoreTable():
+    tmp = []
+    for i in settings.ignoreTable:
+        tmp.append(getTableName(i))
+    return tmp
+
+def getTableName(table):
+    return settings.tablePrefix+table

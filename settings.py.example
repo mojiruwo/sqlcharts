@@ -45,3 +45,8 @@ allowTable = [
     "products",
     "skus",
 ]
+
+# 忽略显示的表
+ignoreTable = [
+    "users",
+]
