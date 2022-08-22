@@ -105,6 +105,11 @@ const graph = new X6.Graph({
   container: document.getElementById('container'),
   height: 600,
   grid: true,
+  autosize: true,
+  interacting: function (cellView) {
+    // 禁止连线操作 https://antv-x6.gitee.io/zh/docs/api/graph/interaction#interacting
+    return { magnetConnectable: false }
+  },
   connecting: {
     router: {
       name: 'er',
